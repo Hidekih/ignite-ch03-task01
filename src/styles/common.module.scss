@@ -10,7 +10,23 @@
   p {
     margin-top: 8px;
     font-size: 18px;
+    line-height: 1.5;
     color: var(--text);
+  }
+
+  span {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: var(--info);
+
+    svg {
+      margin-right: 8px;
+    }
+
+    & + span {
+      margin-left: 24px;
+    }
   }
 }
 

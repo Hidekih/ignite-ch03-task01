@@ -34,14 +34,27 @@ interface HomeProps {
   postsPagination: PostPagination;
 }
 
+// yarn test src/__tests__/pages/Home.spec.tsx
+
 export default function Home({ postsPagination }: HomeProps) {
   const [ posts, setPosts ] = useState<Post[]>([])
 
   useEffect(() => {
     if (postsPagination) {
-      setPosts(postsPagination.results)
+      setPosts(postsPagination.results.map(post => {
+        return {
+          ...post,
+          first_publication_date: format(
+            new Date(post.first_publication_date),
+            "dd MMM yyyy",
+            {
+              locale: ptBR,
+            }
+          ),
+        }
+      }));
     }
-  }, [postsPagination]);
+  }, []);
 
   return (
     <>
@@ -70,24 +83,30 @@ export default function Home({ postsPagination }: HomeProps) {
             </Link>
           ))}
 
+          {postsPagination.next_page && (
+            <button className={styles.loadMorePosts}>Carregar mais posts</button>
+          )}
+
         </main>
       </div>
     </>
   )
 }
 
-export const getStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
   const postsResponse = await prismic.query(
     Prismic.Predicates.at('document.type', 'post'),
     {
-      pageSize: 20,
+      pageSize: 1,
+      page: 1
       // orderings : '[my.post.date desc]'
     }
   );
 
-  // console.log(JSON.stringify(postsResponse, null, 2));
+  console.log(JSON.stringify(postsResponse, null, 2));
 
+  // Parsear os dados no useEffect
   const posts = postsResponse.results.map(post => {
     return {
       uid: post.uid,
@@ -103,7 +122,7 @@ export const getStaticProps = async () => {
   return {
     props: { 
       postsPagination: {
-        next_page: 'teste',
+        next_page: postsResponse.next_page,
         results: posts,
       },
     }

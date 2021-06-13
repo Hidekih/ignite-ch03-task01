@@ -4,4 +4,19 @@
   padding: 0;
 }
 
-// TODO
+:root {
+  --black: #1A1D23;
+  --title: #F8F8F8;
+  --info: #BBBBBB;
+  --text: #D7D7D7;
+  --highlight: #FF57B2;
+}
+
+
+body {
+  background: var(--black);
+}
+
+body, div, strong, p, span {
+  font: 400 16px "Inter", sans-serif;
+}

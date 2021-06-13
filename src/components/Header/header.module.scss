@@ -1,1 +1,13 @@
-// TODO
+.container {
+  display: flex;
+  max-width: 730px;
+  height: 105px;
+  margin: 0 auto;
+  align-items: center;
+  background: var(--black);
+  padding: 0 10px;
+
+  img {
+    height: 26px;
+  }
+}

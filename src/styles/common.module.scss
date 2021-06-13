@@ -1,1 +1,16 @@
-// TODO
+.container {
+  margin: 0 auto;
+  background: var(--black);
+
+  strong {
+    font-size: 28px;
+    color: var(--title);
+  }
+
+  p {
+    margin-top: 8px;
+    font-size: 18px;
+    color: var(--text);
+  }
+}
+

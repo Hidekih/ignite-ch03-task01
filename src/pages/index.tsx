@@ -14,6 +14,7 @@ import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { useCallback } from 'react';
 
 interface Post {
   uid?: string;
@@ -38,6 +39,7 @@ interface HomeProps {
 
 export default function Home({ postsPagination }: HomeProps) {
   const [ posts, setPosts ] = useState<Post[]>([])
+  const [ nextPage, setNextPage ] = useState<string | null>(''); 
 
   useEffect(() => {
     if (postsPagination) {
@@ -54,7 +56,44 @@ export default function Home({ postsPagination }: HomeProps) {
         }
       }));
     }
+
+    if (postsPagination.next_page) {
+      setNextPage(postsPagination.next_page)
+    }
   }, []);
+
+  const handleLoadMorePosts = useCallback(() => {
+    console.log(!!nextPage)
+    if(nextPage) {
+      fetch(nextPage)
+      .then(res => {
+        return res.json();
+      })
+      .then(response => {
+        const loadedPosts = response.results.map(post => {
+          return {
+            uid: post.uid,
+            first_publication_date: format(
+              new Date(post.first_publication_date),
+              "dd MMM yyyy",
+              {
+                locale: ptBR,
+              }
+            ),
+            data: {
+              title: post.data.title,
+              subtitle: post.data.subtitle,
+              author: post.data.author,
+            }
+          }
+        })
+        
+        setPosts([ ...posts, ...loadedPosts ]);
+        // setPosts([ ...posts, loadedPosts ]);
+        setNextPage(response.next_page);
+      })
+    }
+  }, [nextPage]);
 
   return (
     <>
@@ -83,8 +122,13 @@ export default function Home({ postsPagination }: HomeProps) {
             </Link>
           ))}
 
-          {postsPagination.next_page && (
-            <button className={styles.loadMorePosts}>Carregar mais posts</button>
+          {nextPage && (
+            <button 
+              className={styles.loadMorePosts}
+              onClick={handleLoadMorePosts}  
+            >
+              Carregar mais posts {}
+            </button>
           )}
 
         </main>
@@ -98,13 +142,13 @@ export const getStaticProps: GetStaticProps = async () => {
   const postsResponse = await prismic.query(
     Prismic.Predicates.at('document.type', 'post'),
     {
-      pageSize: 1,
+      pageSize: 20,
       page: 1
       // orderings : '[my.post.date desc]'
     }
   );
 
-  console.log(JSON.stringify(postsResponse, null, 2));
+  // console.log(JSON.stringify(postsResponse, null, 2));
 
   // Parsear os dados no useEffect
   const posts = postsResponse.results.map(post => {

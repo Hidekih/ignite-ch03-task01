@@ -86,7 +86,7 @@ export default function Post({ post }: PostProps) {
           { postPage.data.content.length > 0 && postPage.data.content.map(c => (
             <div className={styles.content} key={c.heading}>
               <strong>{c.heading}</strong>
-              <p>{c.body.text}</p>
+              <p>{c.body['text']}</p>
             </div>
           ))}
         </article>
